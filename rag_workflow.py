@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import os
 from typing import List, Dict, Any
 from langchain_core.messages import HumanMessage, AIMessage
@@ -8,46 +9,75 @@ from langchain.retrievers import ParentDocumentRetriever
 from langchain.storage import InMemoryStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from transformers import AutoTokenizer, AutoModel
+import torch
+from langchain.embeddings.base import Embeddings
+from langgraph.graph import StateGraph, END
+from langchain_community.vectorstores import Chroma
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from ragatouille import RAGPretrainedModel
 from langgraph.graph import StateGraph, END
+from langchain.embeddings.base import Embeddings
+import numpy as np
+from typing import List
 
+load_dotenv()
 # Initialize ColBERT model
 colbert_model = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 # Function to ingest documents from a directory
 from langchain_community.document_loaders import DirectoryLoader
 
+class CodeBERTEmbeddings(Embeddings):
+    def __init__(self, model_name: str = "microsoft/codebert-base"):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model.to(self.device)
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        embeddings = []
+        for text in texts:
+            inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = {name: tensor.to(self.device) for name, tensor in inputs.items()}
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+            embeddings.append(outputs.last_hidden_state.mean(dim=1).squeeze().cpu().numpy().tolist())
+        return embeddings
+
+    def embed_query(self, text: str) -> List[float]:
+        return self.embed_documents([text])[0]
+
 def ingest_documents(root_folder: str):
-    # Define an exhaustive list of file extensions for data science projects
-    ds_exts = [
-        # Code files
-        "*.py", "*.ipynb", "*.r", "*.rmd", "*.jl", "*.scala", "*.sql", "*.sas",
-        # Data files
-        "*.csv", "*.tsv", "*.json", "*.jsonl", "*.xml", "*.parquet", "*.avro",
-        "*.orc", "*.feather", "*.arrow", "*.hdf5", "*.h5", "*.pkl", "*.pickle",
-        # Config and metadata files
-        "*.yml", "*.yaml", "*.toml", "*.ini", "*.cfg", "*.conf",
-        # Documentation and text files
-        "*.md", "*.txt", "*.rst", "*.tex", "*.pdf",
-        # Spreadsheets (note: might require additional processing)
-        "*.xlsx", "*.xls", "*.ods",
-        # Other potentially relevant files
-        "*.log", "*.sh", "*.bat", "*.ps1", "*.dockerfile", "*.proto"
-    ]
+    print(f"Loading documents from: {root_folder}")
     
-    # Create a loader with the specified extensions
     loader = DirectoryLoader(
         root_folder,
-        glob="**/{" + ",".join(ds_exts) + "}",
-        recursive=True
+        recursive=True  
     )
     documents = loader.load()
+    if not documents:
+        print("No documents were loaded. Check the root_folder path and file contents.")
+        return None
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     splits = text_splitter.split_documents(documents)
     
-    vectorstore = Chroma.from_documents(splits, colbert_model.embed_documents)
+    print(f"Number of document splits: {len(splits)}")
+    
+    # Create CodeBERT embedding function
+    codebert_embeddings = CodeBERTEmbeddings()
+    
+    # Create the vector store with CodeBERT embeddings
+    vectorstore = Chroma.from_documents(
+        documents=splits,
+        embedding=codebert_embeddings,
+        persist_directory="./chroma_db"
+    )
     
     return vectorstore
 
