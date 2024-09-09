@@ -5,6 +5,7 @@ langgraph==0.2.19
 ragatouille==0.0.8.post4
 chromadb==0.5.5
 openai==1.43.0
+sentence-transformers==2.7.0
 tiktoken==0.7.0
 transformers==4.44.2
 torch==2.4.1
