@@ -5,7 +5,7 @@ RERANK_TOP_K = 3
 
 # Model settings
 SENTENCE_TRANSFORMER_MODEL = 'all-MiniLM-L6-v2'
-OPENAI_MODEL = "gpt-3.5-turbo"  # or "gpt-4" if you're using GPT-4
+OPENAI_MODEL = "gpt-4o-mini"  # or "gpt-4" if you're using GPT-4
 
 # RAG workflow settings
 MAX_REPHRASE_ATTEMPTS = 3
