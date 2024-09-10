@@ -217,12 +217,14 @@ def check_relevance(state):
     }
 
 def compute_semantic_similarity(sentence1, sentence2):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Compute embeddings
-    embedding1 = sentence_model.encode([sentence1])[0]
-    embedding2 = sentence_model.encode([sentence2])[0]
+    with torch.no_grad():
+        embedding1 = sentence_model.encode([sentence1], convert_to_tensor=True).to(device)
+        embedding2 = sentence_model.encode([sentence2], convert_to_tensor=True).to(device)
     
     # Compute cosine similarity
-    similarity = 1 - cosine(embedding1, embedding2)
+    similarity = 1 - cosine(embedding1[0].cpu().numpy(), embedding2[0].cpu().numpy())
     return similarity
 
 # Function to rephrase the question
