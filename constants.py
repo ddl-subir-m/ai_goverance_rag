@@ -16,7 +16,7 @@ REPHRASE_QUESTION_MODEL = "gpt-4o-mini"
 MAX_ITERATIONS = 3  # Maximum number of iterations for the entire workflow
 MAX_REPHRASE_ATTEMPTS = 2
 RELEVANCE_THRESHOLD = 0.7
-SEMANTIC_SIMILARITY_THRESHOLD = 0.95
+SEMANTIC_SIMILARITY_THRESHOLD = 0.8
 
 # Prompt templates
 REPHRASE_SYSTEM_PROMPT = """You are an AI assistant tasked with rephrasing questions to improve information retrieval. Follow these guidelines:\n"
