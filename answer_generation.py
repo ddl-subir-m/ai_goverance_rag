@@ -4,6 +4,15 @@ from langchain_openai import ChatOpenAI
 from constants import GENERATE_ANSWER_MODEL, CHECK_RELEVANCE_MODEL, CONTEXT_RELEVANCE_SYSTEM_PROMPT, ANSWER_RELEVANCE_SYSTEM_PROMPT, MAX_ITERATIONS
 
 def generate_answer(state):
+    """
+    Generates an answer based on the given context and question.
+    
+    Args:
+        state (dict): The current state of the workflow.
+    
+    Returns:
+        dict: A dictionary containing the generated answer.
+    """
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are a helpful AI assistant. Answer the question based on the given context."),
         ("human", "Context: {context}\n\nQuestion: {question}"),
@@ -19,6 +28,15 @@ def generate_answer(state):
     return {"answer": answer}
 
 def check_relevance(state):
+    """
+    Checks the relevance of the context and the generated answer.
+    
+    Args:
+        state (dict): The current state of the workflow.
+    
+    Returns:
+        dict: A dictionary containing relevance information and updated state.
+    """
     context_relevance_prompt = ChatPromptTemplate.from_messages([
         ("system", CONTEXT_RELEVANCE_SYSTEM_PROMPT),
         ("human", "Context: {context}\n\nQuestion: {question}\n\nIs this context relevant to the question?"),

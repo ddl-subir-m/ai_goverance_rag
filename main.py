@@ -4,6 +4,14 @@ from constants import VECTOR_STORE_ROOT_FOLDER
 from langgraph.graph import END
 
 def main(app, vectorstore, question: str):
+    """
+    Main function to run the RAG-based question answering system.
+
+    Args:
+        app: The compiled workflow application.
+        vectorstore: The vector store containing the document embeddings.
+        question (str): The user's question.
+    """
     final_answer = None
     for output in app.stream({
         "question": question,
@@ -47,8 +55,10 @@ def main(app, vectorstore, question: str):
         print("No relevant information available after maximum iterations.")
 
 if __name__ == "__main__":
+    # Create the vector store and set up the workflow
     vectorstore = create_vector_store(VECTOR_STORE_ROOT_FOLDER)
     app = setup_workflow()
 
+    # Example question (replace with user input in a real application)
     question = "This is gibberish"
     main(app, vectorstore, question)
