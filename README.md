@@ -6,6 +6,14 @@ This project implements a Retrieval-Augmented Generation (RAG) based question an
 
 The system uses a combination of vector store retrieval, question rephrasing, and answer generation to provide accurate responses to user queries. It employs a workflow that iteratively improves the relevance of retrieved documents and generated answers.
 
+## System Workflow
+
+The following diagram illustrates the workflow of our RAG-based question answering system:
+
+![RAG Workflow](ai_governance_rag.png)
+
+This workflow demonstrates the iterative process of document retrieval, answer generation, and question rephrasing to ensure high-quality responses.
+
 ## Key Components
 
 1. Vector Store: Uses Chroma with CodeBERT embeddings for efficient document retrieval.
