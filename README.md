@@ -10,7 +10,7 @@ The system uses a combination of vector store retrieval, question rephrasing, an
 
 The following diagram illustrates the workflow of our RAG-based question answering system:
 
-![RAG Workflow](ai_governance_rag.png)
+![RAG Workflow](imgs/rag_workflow.png)
 
 This workflow demonstrates the iterative process of document retrieval, answer generation, and question rephrasing to ensure high-quality responses.
 
