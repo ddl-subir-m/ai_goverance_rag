@@ -27,6 +27,7 @@ def ensure_nltk_packages():
     Ensures that required NLTK packages are downloaded and available.
     Downloads packages if they are not found in the specified directory.
     """
+    # Change this to the path of the nltk_data directory in your environment
     nltk_data_dir = './.venv/nltk_data'
     packages = ['punkt', 'averaged_perceptron_tagger']
 
